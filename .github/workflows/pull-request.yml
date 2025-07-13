@@ -1,49 +1,57 @@
 name: Pull Request
+
 on:
-  push:
+  pull_request:
     branches:
+      - 'main'
+      - 'master'
       - 'DIC1-*'
       - 'IS-*'
 
 jobs:
-  build:
+  ci-checks:
     runs-on: ubuntu-latest
 
     env:
-      MY_ENV_VAR: value
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # 1. Récupération du code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
+      # 2. Configuration de Java
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
           distribution: 'temurin'
+          java-version: '17'  # Assure-toi que ça correspond à ton projet
 
-      - name: Scan de secrets
-        run: |
-          echo "Todo : Scan de secrets"
-        shell: bash
+      # 3. Scan de secrets (ex : GitLeaks)
+      - name: Scan secrets with Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .github/.gitleaks.toml  # optionnel, sinon utilise la config par défaut
 
-      - name: Scan des vulnérabilités
-        run: |
-          echo "Todo : Scan des vulnérabilités"
-        shell: bash
+      # 4. Scan des vulnérabilités des dépendances (OWASP)
+      - name: Dependency vulnerability check (OWASP)
+        run: mvn org.owasp:dependency-check-maven:check -P cve
 
-      - name: Unit Tests
-        run: |
-          mvn test -Put -Pit
-        shell: bash
+      # 5. Compilation & Tests unitaires
+      - name: Run unit tests
+        run: mvn clean test -P ut
 
-      - name: Quality Gate
-        run: |
-          echo "Todo : Quality Gate"
-        shell: bash
+      # 6. Analyse SonarCloud
+      - name: SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Check Quality Gate
-        run: |
-          echo "Todo : Check Quality Gate"
-        shell: bash
+      # 7. Quality Gate (attente & validation du résultat)
+      - name: Wait and check SonarCloud Quality Gate
+        uses: sonarsource/sonarcloud-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
