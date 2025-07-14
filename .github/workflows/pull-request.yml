@@ -7,6 +7,7 @@ on:
       - 'master'
       - 'DIC1-*'
       - 'IS-*'
+      - 'test-ci-pr'
 
 jobs:
   ci-checks:
@@ -52,6 +53,6 @@ jobs:
 
       # 7. Quality Gate (attente & validation du résultat)
       - name: Wait and check SonarCloud Quality Gate
-        uses: sonarsource/sonarcloud-quality-gate-action@master
+        uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
