@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 package sn.ept.git.seminaire.cicd.resources.TagResourceTest
+=======
+package sn.ept.git.seminaire.cicd.resources;
+>>>>>>> test-ci-pr
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +14,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+<<<<<<< HEAD
+=======
+import sn.ept.git.seminaire.cicd.exceptions.ItemNotFoundException;
+>>>>>>> test-ci-pr
 import org.springframework.test.web.servlet.MockMvc;
 import sn.ept.git.seminaire.cicd.models.TagDTO;
 import sn.ept.git.seminaire.cicd.services.TagService;
@@ -25,7 +33,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TagResource.class)
+<<<<<<< HEAD
 class TagResourceTest {
+=======
+class TagRessourceTest {
+>>>>>>> test-ci-pr
 
     @Autowired
     private MockMvc mockMvc;
@@ -67,6 +79,20 @@ class TagResourceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(tag.getName()));
     }
+<<<<<<< HEAD
+=======
+    
+    @Test
+    void findById_withBadId_shouldReturnNotFound() throws Exception {
+        Mockito.when(tagService.findById(Mockito.anyString()))
+            .thenThrow(new ItemNotFoundException());
+
+        mockMvc.perform(get(UrlMapping.Tag.FIND_BY_ID, UUID.randomUUID().toString())
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+    }
+
+>>>>>>> test-ci-pr
 
     @Test
     void shouldCreateTag() throws Exception {
@@ -92,6 +118,7 @@ class TagResourceTest {
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.name").value(tag.getName()));
     }
+<<<<<<< HEAD
 
     @Test
     void shouldDeleteTag() throws Exception {
@@ -99,3 +126,25 @@ class TagResourceTest {
                 .andExpect(status().isNoContent());
     }
 }
+=======
+  
+    @Test
+    void delete_shouldDeleteTag() throws Exception {
+        Mockito.doNothing().when(tagService).delete(Mockito.anyString());
+
+        mockMvc.perform(delete(UrlMapping.Tag.DELETE, tag.getId())
+                    .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+    }
+    
+    @Test
+    void delete_withBadId_shouldReturnNotFound() throws Exception {
+        Mockito.doThrow(new ItemNotFoundException())
+            .when(tagService).delete(Mockito.anyString());
+
+        mockMvc.perform(delete(UrlMapping.Tag.DELETE, UUID.randomUUID().toString())
+                    .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+}
+>>>>>>> test-ci-pr

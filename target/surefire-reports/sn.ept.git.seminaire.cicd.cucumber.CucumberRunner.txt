@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: sn.ept.git.seminaire.cicd.cucumber.CucumberRunner
+-------------------------------------------------------------------------------
+Tests run: 48, Failures: 0, Errors: 0, Skipped: 48, Time elapsed: 0.930 s -- in sn.ept.git.seminaire.cicd.cucumber.CucumberRunner
