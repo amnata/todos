@@ -1,0 +1,57 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+      - 'master'
+      - 'DIC1-*'
+      - 'IS-*'
+
+jobs:
+  ci-checks:
+    runs-on: ubuntu-latest
+
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      # 1. Récupération du code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Configuration de Java
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'  # Assure-toi que ça correspond à ton projet
+
+      # 3. Scan de secrets (ex : GitLeaks)
+      - name: Scan secrets with Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .github/.gitleaks.toml  # optionnel, sinon utilise la config par défaut
+
+      # 4. Scan des vulnérabilités des dépendances (OWASP)
+      - name: Dependency vulnerability check (OWASP)
+        run: mvn org.owasp:dependency-check-maven:check -P cve
+
+      # 5. Compilation & Tests unitaires
+      - name: Run unit tests
+        run: mvn clean test -P ut
+
+      # 6. Analyse SonarCloud
+      - name: SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # 7. Quality Gate (attente & validation du résultat)
+      - name: Wait and check SonarCloud Quality Gate
+        uses: sonarsource/sonarcloud-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
