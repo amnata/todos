@@ -35,6 +35,23 @@ jobs:
         run: mvn org.owasp:dependency-check-maven:check -P cve
 
       - name: Run unit tests
+
+            - name: SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Wait and check SonarCloud Quality Gate
+        uses: sonarsource/sonarcloud-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
+
+
+
         run: mvn clean test -P ut
 
       - name: SonarCloud Analysis
