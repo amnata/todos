@@ -196,3 +196,4 @@ Toute information utile
 🗓️ 19 juillet 2025 à 23h59
  📤 Mode de rendu : via la plateforme Classroom
 
+Test du pipeline CI/CD 🚀
